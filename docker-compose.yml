@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:13
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Dragonquest9
+      POSTGRES_DB: agnos_be
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  golang-service:
+    build:
+      context: /
+    container_name: golang_service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgres://postgres:Dragonquest9@localhost:5432/agnos_be?sslmode=disable
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - golang-service
+
+volumes:
+  postgres_data:
